@@ -1,1 +1,1 @@
-# euro-sat
+# Image classification using euro-sat data
