@@ -1,0 +1,29 @@
+
+model: 
+  pretrained_model_name: google/vit-base-patch16-224-in21k
+  num_classes: 10
+  dropout: 0
+  hidden_layers: 3
+  hidden_dim: 512
+  batch_norm: true
+  layer_norm: false
+  hidden_activation: GELU
+  output_activation: null
+dataset: blanchon/EuroSAT_RGB
+training:
+  freeze_backbone: true
+  batch_size: 32
+  num_workers: 8
+  num_epochs: 10
+  learning_rate: 0.00001
+  weight_decay: 0.0001
+  
+  lr_scheduler_config:
+    lr_scheduler: StepLR
+    gamma: 0.95
+    step_size: 1000
+    warmup_steps: 1000
+  save_dir: ./checkpoints
+
+
+  
