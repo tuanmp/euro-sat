@@ -9,6 +9,7 @@ model:
   layer_norm: false
   hidden_activation: GELU
   output_activation: null
+  compile: false
 dataset: blanchon/EuroSAT_RGB
 training:
   freeze_backbone: true
@@ -17,13 +18,23 @@ training:
   num_epochs: 10
   learning_rate: 0.00001
   weight_decay: 0.0001
-  
+  log_wandb: true
+  wandb_project: ViT-Base-EuroSAT_RGB
   lr_scheduler_config:
     lr_scheduler: StepLR
     gamma: 0.95
     step_size: 1000
     warmup_steps: 1000
   save_dir: ./checkpoints
+  callbacks:
+    - callback: ModelCheckpoint
+      monitor: val_f1
+      mode: max
+      save_top_k: 1
+      save_last: true
+      save_weights_only: false
+    - callback: RichProgressBar
+    - callback: RichModelSummary
 
 
   

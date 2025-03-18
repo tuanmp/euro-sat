@@ -1,5 +1,7 @@
 from datetime import datetime
 from pytorch_lightning import Trainer
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning import callbacks
 import os
 from transform.vit_processor import get_image_processor
 import datasets as ds
@@ -41,7 +43,8 @@ def train(config, fast_dev_run):
         output_activation=config["model"]["output_activation"],
         learning_rate=config["training"]["learning_rate"],
         freeze_backbone=config["training"]["freeze_backbone"],
-        lr_scheduler_config=config["training"].get("lr_scheduler_config", {})
+        lr_scheduler_config=config["training"].get("lr_scheduler_config", {}),
+        compile=config['model'].get('compile', False)
     )
     # load data
     # datasets = ds.load_dataset(config["dataset"], cache_dir=cache_dir)
@@ -77,6 +80,21 @@ def train(config, fast_dev_run):
     model_tag = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     print("Configuring Trainer ...")
     save_dir = os.path.join(config["training"].get("save_dir", "./checkpoints"))
+    logger = []
+    if config["training"].get("log_wandb"):
+        logger .append( WandbLogger(
+            name=model_tag,
+            project=config["training"]["wandb_project"],
+            save_dir=save_dir
+        ))
+    
+    callback_list = []
+    if config['training'].get("callbacks"):
+        for callback_config in config["training"]["callbacks"]:
+            callback = getattr(callbacks, callback_config.pop("callback"))
+            callback_list.append(callback(**callback_config))
+    
+    print(callback_list)
 
     trainer = Trainer(
         accelerator = config["training"].get("accelerator", "auto"),
@@ -87,7 +105,9 @@ def train(config, fast_dev_run):
         fast_dev_run = fast_dev_run,
         max_epochs = config["training"]["num_epochs"],
         enable_model_summary=True,
-        default_root_dir = save_dir
+        default_root_dir = save_dir,
+        logger=logger,
+        callbacks=callback_list
     )
 
 
