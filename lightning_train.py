@@ -7,7 +7,7 @@ from transform.vit_processor import get_image_processor
 import datasets as ds
 import click
 import yaml
-from models.vit import LightningViTModel
+import models
 import torch
 from functools import partial
 
@@ -30,7 +30,7 @@ def train(config, fast_dev_run):
         config = yaml.safe_load(f)
     
     # load model
-    model = LightningViTModel(
+    model = getattr(models, config['model']['model_class'])(
         pretrained_model_name=config["model"]["pretrained_model_name"],
         dataset_name=config["dataset"],
         num_classes=config["model"]["num_classes"],
@@ -93,8 +93,6 @@ def train(config, fast_dev_run):
         for callback_config in config["training"]["callbacks"]:
             callback = getattr(callbacks, callback_config.pop("callback"))
             callback_list.append(callback(**callback_config))
-    
-    print(callback_list)
 
     trainer = Trainer(
         accelerator = config["training"].get("accelerator", "auto"),
@@ -109,7 +107,6 @@ def train(config, fast_dev_run):
         logger=logger,
         callbacks=callback_list
     )
-
 
     print("Begin training...")
     trainer.fit(model, [train_dataloader], [val_dataloader])
