@@ -85,7 +85,8 @@ def train(config, fast_dev_run):
         logger .append( WandbLogger(
             name=model_tag,
             project=config["training"]["wandb_project"],
-            save_dir=save_dir
+            save_dir=save_dir,
+            group=config['training']['wandb_group']
         ))
     
     callback_list = []
@@ -102,7 +103,6 @@ def train(config, fast_dev_run):
         precision = config["training"].get("precision", 32),
         fast_dev_run = fast_dev_run,
         max_epochs = config["training"]["num_epochs"],
-        enable_model_summary=True,
         default_root_dir = save_dir,
         logger=logger,
         callbacks=callback_list

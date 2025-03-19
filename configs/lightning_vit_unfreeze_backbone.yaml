@@ -13,15 +13,15 @@ model:
   compile: false
 dataset: blanchon/EuroSAT_RGB
 training:
-  freeze_backbone: true
+  freeze_backbone: false
   batch_size: 32
   num_workers: 8
-  num_epochs: 3
+  num_epochs: 200
   learning_rate: 0.00001
   weight_decay: 0.0001
   log_wandb: true
   wandb_project: ViT-Base-EuroSAT_RGB
-  wandb_group: freeze_backbone
+  wandb_group: unfreeze_backbone
   lr_scheduler_config:
     lr_scheduler: StepLR
     gamma: 0.95
